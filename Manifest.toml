@@ -2,7 +2,7 @@
 
 julia_version = "1.12.2"
 manifest_format = "2.0"
-project_hash = "336f3a8165c83c74bcaffb3210f8f1d83eab9c4d"
+project_hash = "5517f264de2a67ca3d31e898f0c15f2b2233060c"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -318,10 +318,10 @@ uuid = "f5851436-0d7a-5f13-b9de-f02708fd171a"
 version = "3.3.11+0"
 
 [[deps.FancyMakie]]
-deps = ["CairoMakie"]
+deps = ["CairoMakie", "LaTeXStrings", "MathTeXEngine"]
 path = "."
 uuid = "aa8846d6-bb89-4e5c-8db1-9add4ad434f9"
-version = "0.1.0"
+version = "0.1.4"
 
 [[deps.FileIO]]
 deps = ["Pkg", "Requires", "UUIDs"]
