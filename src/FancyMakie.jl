@@ -83,7 +83,7 @@ function theme_utopiafonts()
     return utopia_theme
 end
 
-const GREEK_SYM = [
+const latex_string_replacements = [
     "\\alpha"      => "\\textit{\\alpha}",      "\\otheralpha"      => "\\text{\\alpha}",
     "\\beta"       => "\\textit{\\beta}",       "\\otherbeta"       => "\\text{\\beta}",
     "\\gamma"      => "\\textit{\\gamma}",      "\\othergamma"      => "\\text{\\gamma}",      "\\Gamma"          => "\\textit{\\Gamma}",      "\\otherGamma"      => "\\text{\\Gamma}",
@@ -106,14 +106,16 @@ const GREEK_SYM = [
     "\\phi"        => "\\textit{\\phi}",        "\\otherphi"        => "\\text{\\phi}",        "\\varphi"         => "\\textit{\\varphi}",     "\\othervarphi"     => "\\text{\\varphi}",     "\\Phi"   => "\\textit{\\Phi}",   "\\otherPhi"   => "\\text{\\Phi}",
     "\\chi"        => "\\textit{\\chi}",        "\\otherchi"        => "\\text{\\chi}",
     "\\psi"        => "\\textit{\\psi}",        "\\otherpsi"        => "\\text{\\psi}",        "\\Psi"            => "\\textit{\\Psi}",        "\\otherPsi"        => "\\text{\\Psi}",
-    "\\omega"      => "\\textit{\\omega}",      "\\otheromega"      => "\\text{\\omega}",      "\\Omega"          => "\\textit{\\Omega}",      "\\otherOmega"      => "\\text{\\Omega}"
+    "\\omega"      => "\\textit{\\omega}",      "\\otheromega"      => "\\text{\\omega}",      "\\Omega"          => "\\textit{\\Omega}",      "\\otherOmega"      => "\\text{\\Omega}",
+
+    "+" => "\\textit{+}", "-" => "\\textit{-}", "\\pm" => "\\textit{\\pm}", "=" => "\\textit{=}", "\\times" => "\\textit{\\times}", "\\div" => "\\textit{\\div}", "°" => "\\textit{°}" 
 ]
 
 # Helper function for [see below]
 function change_latex_string(lat_str::LaTeXString)
     active_math_font = MathTeXEngine.get_texfont_family().fonts[:math]
     if occursin("Erewhon", active_math_font)
-        new_str = replace(lat_str.s, GREEK_SYM...)
+        new_str = replace(lat_str.s, latex_string_replacements...)
         return LaTeXString(new_str)
     end
     return lat_str
