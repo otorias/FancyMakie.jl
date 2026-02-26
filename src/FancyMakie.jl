@@ -3,7 +3,7 @@
 
 Basic utilities for plotting with CairoMakie
 
-## Exported functions
+## Exported functions / macros
     
     set_custom_theme!()
 
@@ -14,6 +14,8 @@ Basic utilities for plotting with CairoMakie
     wbox(axis, limits)
 
     cross()
+
+    U"..."
 
 """
 module FancyMakie
@@ -81,6 +83,72 @@ function theme_utopiafonts()
     return utopia_theme
 end
 
+const GREEK_SYM = [
+    "\\alpha"      => "\\textit{\\alpha}",      "\\otheralpha"      => "\\text{\\alpha}",
+    "\\beta"       => "\\textit{\\beta}",       "\\otherbeta"       => "\\text{\\beta}",
+    "\\gamma"      => "\\textit{\\gamma}",      "\\othergamma"      => "\\text{\\gamma}",      "\\Gamma"          => "\\textit{\\Gamma}",      "\\otherGamma"      => "\\text{\\Gamma}",
+    "\\delta"      => "\\textit{\\delta}",      "\\otherdelta"      => "\\text{\\delta}",      "\\Delta"          => "\\textit{\\Delta}",      "\\otherDelta"      => "\\text{\\Delta}",
+    "\\epsilon"    => "\\textit{\\epsilon}",    "\\otherepsilon"    => "\\text{\\epsilon}",    "\\varepsilon"     => "\\textit{\\varepsilon}", "\\othervarepsilon" => "\\text{\\varepsilon}",
+    "\\zeta"       => "\\textit{\\zeta}",       "\\otherzeta"       => "\\text{\\zeta}",
+    "\\eta"        => "\\textit{\\eta}",        "\\othereta"        => "\\text{\\eta}",
+    "\\theta"      => "\\textit{\\theta}",      "\\othertheta"      => "\\text{\\theta}",      "\\vartheta"       => "\\textit{\\vartheta}",   "\\othervartheta"   => "\\text{\\vartheta}",   "\\Theta" => "\\textit{\\Theta}", "\\otherTheta" => "\\text{\\Theta}",
+    "\\iota"       => "\\textit{\\iota}",       "\\otheriota"       => "\\text{\\iota}",
+    "\\kappa"      => "\\textit{\\kappa}",      "\\otherkappa"      => "\\text{\\kappa}",      "\\varkappa"       => "\\textit{\\varkappa}",   "\\othervarkappa"   => "\\text{\\varkappa}",
+    "\\lambda"     => "\\textit{\\lambda}",     "\\otherlambda"     => "\\text{\\lambda}",     "\\Lambda"         => "\\textit{\\Lambda}",     "\\otherLambda"     => "\\text{\\Lambda}",
+    "\\mu"         => "\\textit{\\mu}",         "\\othermu"         => "\\text{\\mu}",
+    "\\nu"         => "\\textit{\\nu}",         "\\othernu"         => "\\text{\\nu}",
+    "\\xi"         => "\\textit{\\xi}",         "\\otherxi"         => "\\text{\\xi}",         "\\Xi"             => "\\textit{\\Xi}",         "\\otherXi"         => "\\text{\\Xi}",
+    "\\pi"         => "\\textit{\\pi}",         "\\otherpi"         => "\\text{\\pi}",         "\\varpi"          => "\\textit{\\varpi}",      "\\othervarpi"      => "\\text{\\varpi}",      "\\Pi"    => "\\textit{\\Pi}",    "\\otherPi"    => "\\text{\\Pi}",
+    "\\rho"        => "\\textit{\\rho}",        "\\otherrho"        => "\\text{\\rho}",        "\\varrho"         => "\\textit{\\varrho}",     "\\othervarrho"     => "\\text{\\varrho}",
+    "\\sigma"      => "\\textit{\\sigma}",      "\\othersigma"      => "\\text{\\sigma}",      "\\varsigma"       => "\\textit{\\varsigma}",   "\\othervarsigma"   => "\\text{\\varsigma}",   "\\Sigma" => "\\textit{\\Sigma}", "\\otherSigma" => "\\text{\\Sigma}",
+    "\\tau"        => "\\textit{\\tau}",        "\\othertau"        => "\\text{\\tau}",
+    "\\upsilon"    => "\\textit{\\upsilon}",    "\\otherupsilon"    => "\\text{\\upsilon}",    "\\Upsilon"        => "\\textit{\\Upsilon}",    "\\otherUpsilon"    => "\\text{\\Upsilon}",
+    "\\phi"        => "\\textit{\\phi}",        "\\otherphi"        => "\\text{\\phi}",        "\\varphi"         => "\\textit{\\varphi}",     "\\othervarphi"     => "\\text{\\varphi}",     "\\Phi"   => "\\textit{\\Phi}",   "\\otherPhi"   => "\\text{\\Phi}",
+    "\\chi"        => "\\textit{\\chi}",        "\\otherchi"        => "\\text{\\chi}",
+    "\\psi"        => "\\textit{\\psi}",        "\\otherpsi"        => "\\text{\\psi}",        "\\Psi"            => "\\textit{\\Psi}",        "\\otherPsi"        => "\\text{\\Psi}",
+    "\\omega"      => "\\textit{\\omega}",      "\\otheromega"      => "\\text{\\omega}",      "\\Omega"          => "\\textit{\\Omega}",      "\\otherOmega"      => "\\text{\\Omega}"
+]
+
+# Helper function for [see below]
+function change_latex_string(lat_str::LaTeXString)
+    active_math_font = MathTeXEngine.get_texfont_family().fonts[:math]
+    if occursin("Erewhon", active_math_font)
+        new_str = replace(lat_str.s, GREEK_SYM...)
+        return LaTeXString(new_str)
+    end
+    return lat_str
+end    
+
+@doc raw"""
+    U"..."
+
+Like L"..." from LaTeXStrings.jl but improved for use with Utopia (Erewhon) fonts\\
+and is identical to L"..." if Makie font is not set to `:utopia`.\\
+Allows for upright greek letters with "\\othergreek".
+
+# Examples
+```juliarepl
+julia> U"d = 0.5\,\othermu\mathrm{m}"
+"$d = 0.5\,\text{\mu}\mathrm{m}$" ("d = 0.5 μm")
+
+julia> U"\sigma_\othergamma = %$(12.34^2) \mathrm{b}"
+"$\textit{\sigma}_\text{\gamma} = 152.2756 \mathrm{b}$" ("σ_γ = 152.2756 b")
+```
+"""
+macro U_str(s::String)
+    # 1. Create a hard-coded pointer to the original macro. 
+    original_macro = GlobalRef(LaTeXStrings, Symbol("@L_str"))
+    # 2. Manually construct the code expression to call it
+    mac_call = Expr(:macrocall, original_macro, __source__, s)
+
+    return quote
+        # 3. Escape the call so %$ variables are found in the user's script
+        lat_str = $(esc(mac_call))
+        # 4. Pass the result to our helper function
+        $FancyMakie.change_latex_string(lat_str) 
+    end
+end
+
 """
     set_custom_theme!(theme::Symbol=:plot; font::Symbol=:latex)
 
@@ -106,10 +174,9 @@ function set_custom_theme!(theme::Symbol=:plot; font::Symbol=:latex)
     end
 
     if font === :latex
-        set_theme!(merge(custom_theme, theme_latexfonts()))
         MathTeXEngine.set_texfont_family!()
+        set_theme!(merge(custom_theme, theme_latexfonts()))
     elseif font === :utopia
-        set_theme!(merge(custom_theme, theme_utopiafonts()))
         MathTeXEngine.set_texfont_family!(
             regular    = joinpath(@__DIR__, "fonts", "Erewhon-Regular.otf"),
             bold       = joinpath(@__DIR__, "fonts", "Erewhon-Bold.otf"),
@@ -117,66 +184,9 @@ function set_custom_theme!(theme::Symbol=:plot; font::Symbol=:latex)
             bolditalic = joinpath(@__DIR__, "fonts", "Erewhon-BoldItalic.otf"),
             math       = joinpath(@__DIR__, "fonts", "Erewhon-Math.otf")
         )
+        set_theme!(merge(custom_theme, theme_utopiafonts()))
     else
         error(":$font not defined; try :latex or :utopia")
-    end
-
-    @eval Makie begin # make line and Marker elements of uniform size
-        function legendelements(plot::Union{Lines, LineSegments}, legend)
-            ls = plot.linestyle[]
-            return LegendElement[
-                LineElement(
-                    plots = plot,
-                    color = extract_color(plot, legend[:linecolor]),
-                    linestyle = choose_scalar(ls isa Vector ? Linestyle(ls) : ls, legend[:linestyle]),
-                    linewidth = 1,#choose_scalar(plot.linewidth, legend[:linewidth]),
-                    colormap = plot.colormap,
-                    colorrange = plot.colorrange,
-                    alpha = plot.alpha
-                ),
-            ]
-        end
-
-        function legendelements(plot::Scatter, legend)
-            return LegendElement[
-                MarkerElement(
-                    plots = plot,
-                    color = extract_color(plot, legend[:markercolor]),
-                    marker = choose_scalar(plot.marker, legend[:marker]),
-                    markersize = 5,#choose_scalar(plot.markersize, legend[:markersize]),
-                    strokewidth = choose_scalar(plot.strokewidth, legend[:markerstrokewidth]),
-                    strokecolor = choose_scalar(plot.strokecolor, legend[:markerstrokecolor]),
-                    colormap = plot.colormap,
-                    colorrange = plot.colorrange,
-                    alpha = plot.alpha,
-                ),
-            ]
-        end
-        
-        # make legendelement for errorbars actually errorbars
-        function legendelements(plot::Errorbars, legend)
-            w = 1.0   # horizontal bar length
-            h = 0.2   # whisker height
-        
-            # Define points centered at (0,0)
-            points = Point2f[
-                (-w/2,  h/2), (-w/2, -h/2),   # left whisker
-                (-w/2,   0),  ( w/2,   0),    # horizontal bar
-                ( w/2,  h/2), ( w/2, -h/2)    # right whisker
-            ]
-            # Shift all points so the glyph is centered at (0.5,0.5)
-            points .= points .+ Point2f(0.5, 0.5)
-        
-            return [LineElement(
-                plots = plot,
-                color = extract_color(plot, legend[:linecolor]),
-                linewidth = 1,#choose_scalar(plot.linewidth, legend[:linewidth]),
-                colormap = plot.colormap,
-                colorrange = plot.colorrange,
-                alpha = plot.alpha,
-                points = points
-               )]
-        end
     end
 end
 
@@ -284,6 +294,68 @@ function cross(;length=1,width=1,rotation=0)
     ])
 end
 
-export set_custom_theme!, mm2pt, comma, wbox, cross
+function __init__()
+    # runs at runtime
+    @eval Makie begin # make line and Marker elements of uniform size
+        function legendelements(plot::Union{Lines, LineSegments}, legend)
+            ls = plot.linestyle[]
+            return LegendElement[
+                LineElement(
+                    plots = plot,
+                    color = extract_color(plot, legend[:linecolor]),
+                    linestyle = choose_scalar(ls isa Vector ? Linestyle(ls) : ls, legend[:linestyle]),
+                    linewidth = 1,#choose_scalar(plot.linewidth, legend[:linewidth]),
+                    colormap = plot.colormap,
+                    colorrange = plot.colorrange,
+                    alpha = plot.alpha
+                ),
+            ]
+        end
+
+        function legendelements(plot::Scatter, legend)
+            return LegendElement[
+                MarkerElement(
+                    plots = plot,
+                    color = extract_color(plot, legend[:markercolor]),
+                    marker = choose_scalar(plot.marker, legend[:marker]),
+                    markersize = 5,#choose_scalar(plot.markersize, legend[:markersize]),
+                    strokewidth = choose_scalar(plot.strokewidth, legend[:markerstrokewidth]),
+                    strokecolor = choose_scalar(plot.strokecolor, legend[:markerstrokecolor]),
+                    colormap = plot.colormap,
+                    colorrange = plot.colorrange,
+                    alpha = plot.alpha,
+                ),
+            ]
+        end
+        
+        # make legendelement for errorbars actually errorbars
+        function legendelements(plot::Errorbars, legend)
+            w = 1.0   # horizontal bar length
+            h = 0.2   # whisker height
+        
+            # Define points centered at (0,0)
+            points = Point2f[
+                (-w/2,  h/2), (-w/2, -h/2),   # left whisker
+                (-w/2,   0),  ( w/2,   0),    # horizontal bar
+                ( w/2,  h/2), ( w/2, -h/2)    # right whisker
+            ]
+            # Shift all points so the glyph is centered at (0.5,0.5)
+            points .= points .+ Point2f(0.5, 0.5)
+        
+            return [LineElement(
+                plots = plot,
+                color = extract_color(plot, legend[:linecolor]),
+                linewidth = 1,#choose_scalar(plot.linewidth, legend[:linewidth]),
+                colormap = plot.colormap,
+                colorrange = plot.colorrange,
+                alpha = plot.alpha,
+                points = points
+               )]
+        end
+    end
+end
+
+
+export set_custom_theme!, mm2pt, comma, wbox, cross, @U_str
 
 end # module
