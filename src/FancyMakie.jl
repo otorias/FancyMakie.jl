@@ -19,10 +19,10 @@ Basic utilities for plotting with CairoMakie
 module FancyMakie
 __precompile__()
 
-using CairoMakie, LaTeXStrings
+using CairoMakie, LaTeXStrings, MathTeXEngine
 
 const fg_theme = Theme(size = (453.54,340.15), fontsize = 12)
-const ax_theme = Theme(Axis = (   
+const ax_theme = Theme(Axis = (
     xminorticks = IntervalsBetween(2),
     yminorticks = IntervalsBetween(2),
     xtickalign = 1,
@@ -68,9 +68,21 @@ const ax_theme_map = Theme(Axis = (
 const cb_theme = Theme(Colorbar = (vertical=true, flipaxis=true))
 const heatmap_theme = merge(fg_theme, ax_theme_map)
 
+function theme_utopiafonts()
+    utopia_theme = Theme(
+        font = joinpath(@__DIR__, "fonts", "Erewhon-Regular.otf"),
+        fonts = (;
+            regular     = joinpath(@__DIR__, "fonts", "Erewhon-Regular.otf"),
+            bold        = joinpath(@__DIR__, "fonts", "Erewhon-Bold.otf"),
+            italic      = joinpath(@__DIR__, "fonts", "Erewhon-Italic.otf"),
+            bold_italic = joinpath(@__DIR__, "fonts", "Erewhon-BoldItalic.otf"),
+        ),
+    )
+    return utopia_theme
+end
 
 """
-    set_custom_theme!(theme::Symbol)
+    set_custom_theme!(theme::Symbol=:plot; font::Symbol=:latex)
 
 Sets the global Makie theme to the defined theme of this package.
 
@@ -79,8 +91,12 @@ Sets the global Makie theme to the defined theme of this package.
 - `:heatmap`: specifically for heatmap-plots where the axis-ticks should not go inside the axis
 
 If function is called without theme it defaults to `:plot`.
+
+# Available fonts:
+- `:latex`: Computer Modern
+- `:utopia`: Erewhon (Similar to Utopia)
 """
-function set_custom_theme!(theme::Symbol=:plot)
+function set_custom_theme!(theme::Symbol=:plot; font::Symbol=:latex)
     if theme === :plot
         custom_theme = FancyMakie.plot_theme
     elseif theme === :heatmap
@@ -88,9 +104,24 @@ function set_custom_theme!(theme::Symbol=:plot)
     else
         error(":$theme not defined; try :plot or :heatmap")
     end
+
+    if font === :latex
+        set_theme!(merge(custom_theme, theme_latexfonts()))
+        MathTeXEngine.set_texfont_family!()
+    elseif font === :utopia
+        set_theme!(merge(custom_theme, theme_utopiafonts()))
+        MathTeXEngine.set_texfont_family!(
+            regular    = joinpath(@__DIR__, "fonts", "Erewhon-Regular.otf"),
+            bold       = joinpath(@__DIR__, "fonts", "Erewhon-Bold.otf"),
+            italic     = joinpath(@__DIR__, "fonts", "Erewhon-Italic.otf"),
+            bolditalic = joinpath(@__DIR__, "fonts", "Erewhon-BoldItalic.otf"),
+            math       = joinpath(@__DIR__, "fonts", "Erewhon-Math.otf")
+        )
+    else
+        error(":$font not defined; try :latex or :utopia")
+    end
+
     @eval Makie begin # make line and Marker elements of uniform size
-        set_theme!(merge($custom_theme, theme_latexfonts()))
-        
         function legendelements(plot::Union{Lines, LineSegments}, legend)
             ls = plot.linestyle[]
             return LegendElement[
