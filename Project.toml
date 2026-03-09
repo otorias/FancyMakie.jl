@@ -1,7 +1,7 @@
 name = "FancyMakie"
 uuid = "aa8846d6-bb89-4e5c-8db1-9add4ad434f9"
 version = "0.1.9"
-authors = ["28tob "]
+authors = ["otorias"]
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
