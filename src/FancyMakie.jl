@@ -21,7 +21,7 @@ Basic utilities for plotting with CairoMakie
 module FancyMakie
 __precompile__()
 
-using CairoMakie, LaTeXStrings, MathTeXEngine
+using CairoMakie, LaTeXStrings, MathTeXEngine, Measurements
 
 include("themes.jl")
 include("consts.jl")
@@ -227,6 +227,23 @@ function cross(;length=1,width=1,rotation=0)
     LineTo([cos(α) -sin(α);sin(α) cos(α)]*Point(w-l,  l)),
     ClosePath()
     ])
+end
+
+function Makie.errorbars!(ax::Axis, x::Vector{<:Measurement}, y::Vector{<:Measurement}; direction=:xy, kwargs...)
+    if direction == :xy
+        errorbars!(ax, Measurements.value.(x), y; direction=:y, kwargs...)
+        errorbars!(ax, x, Measurements.value.(y); direction=:x, kwargs...)
+    elseif direction == :x
+        errorbars!(ax, x, Measurements.value.(y); direction=:x, kwargs...)
+    elseif direction == :y
+        errorbars!(ax, Measurements.value.(x), y; direction=:y, kwargs...)
+    else
+        errorbars!(ax, Measurements.value.(x), y; direction=direction, kwargs...)
+    end
+end
+function Makie.errorbars!(x::Vector{<:Measurement}, y::Vector{<:Measurement}; direction=:xy, kwargs...) 
+    ax = Makie.current_axis()
+    errorbars!(ax, x, y; direction, kwargs...)
 end
 
 function __init__()
