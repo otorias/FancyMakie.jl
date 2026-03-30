@@ -1,4 +1,4 @@
-const fg_theme = Theme(size = (453.54,340.15), fontsize = 12)
+const fg_theme = Theme(size = (453.54,340.15), fontsize = 12, backgroundcolor=:transparent)
 const ax_theme = Theme(Axis = (
     xminorticks = IntervalsBetween(2),
     yminorticks = IntervalsBetween(2),
@@ -17,7 +17,8 @@ const ax_theme = Theme(Axis = (
     xgridvisible = false,
     ygridvisible = false,
     xminorgridvisible = false,
-    yminorgridvisible = false
+    yminorgridvisible = false,
+    backgroundcolor = :transparent
 ))
 const lb_theme = Theme(Label = (valign = :top, halign = :left, padding = (5,5,5,5)))
 const eb_theme = Theme(Errorbars = (whiskerwidth = 5, linewidth = 1))
@@ -40,7 +41,8 @@ const ax_theme_map = Theme(Axis = (
     xgridvisible = false,
     ygridvisible = false,
     xminorgridvisible = false,
-    yminorgridvisible = false
+    yminorgridvisible = false,
+    backgroundcolor = :transparent
 ))
 const cb_theme = Theme(Colorbar = (vertical=true, flipaxis=true))
 const heatmap_theme = merge(fg_theme, ax_theme_map)
