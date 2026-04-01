@@ -42,11 +42,11 @@ end
 # Helper function for [see below]
 function change_latex_string(lat_str::LaTeXString)
     active_math_font = MathTeXEngine.get_texfont_family().fonts[:math]
-    if occursin("Erewhon", active_math_font)
+    # if occursin("Erewhon", active_math_font)
         new_str = replace(lat_str.s, latex_string_replacements...)
         return LaTeXString(new_str)
-    end
-    return lat_str
+    # end
+    # return lat_str
 end    
 
 @doc raw"""
