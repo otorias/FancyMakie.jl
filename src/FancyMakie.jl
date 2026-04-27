@@ -122,6 +122,7 @@ end
 
 """
     mm2pt(x::Number...)
+    mm2pt(x::Number; aspect::Number)
 
 Calculates the size a figure needs to result in desired mm.
 Output is a Tuple if multiple Arguments were given and a Float if only one.
@@ -134,14 +135,18 @@ julia> mm2pt(100)
 julia> mm2pt(160,120)
 (453.5433070866142, 340.15748031496065)
 
+julia> mm2pt(160, aspect=3/4)
+(453.5433070866142, 340.15748031496065)
+
 julia> figure = Figure(size=mm2pt(160,120), fontsize=12)
 ...
 julia> save("output.pdf", figure, pt_per_unit=1)
 # saves a vector graphic of width 16 cm, height 12 cm and fontsize 12
 ```
 """
-mm2pt(x::Number...) = x ./ 25.4 .* 72 # mm -> inches -> pt
-mm2pt(x::Number) = x / 25.4 * 72
+_mm2pt(x::Number) = x / 25.4 * 72 # mm -> inches -> pt
+mm2pt(x::Number...) = (_mm2pt.(x))
+mm2pt(x::Number; aspect::Union{Nothing,Number}=nothing) = isnothing(aspect) ? _mm2pt(x) : (_mm2pt(x),_mm2pt(x*aspect))
 
 """
     comma(str::String)
